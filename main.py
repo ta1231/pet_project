@@ -31,14 +31,14 @@ app = FastAPI()
 router = APIRouter()
 
 # 모델 불러오기
-model = tf.keras.models.load_model('../models/0427_model_withoutsiru.h5')
+model = tf.keras.models.load_model('./models/0427_model_withoutsiru.h5')
 
 # pickle 파일에서 LabelEncoder 객체 읽어들이기
-with open('../models/label_encoder.pkl', 'rb') as f:
+with open('./models/label_encoder.pkl', 'rb') as f:
     le = pickle.load(f)
 
 # pickle 파일에서 Scaler 객체 읽어들이기
-with open('../scaler/db_minmax.pkl', 'rb') as f:
+with open('./scaler/db_minmax.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
 

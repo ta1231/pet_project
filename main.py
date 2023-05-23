@@ -102,6 +102,25 @@ async def predict(request: Request, input_data: InputData):
     return {"prediction": predicted_classes.tolist()}
 
 
+# API 엔드포인트 정의
+# scaler랑 label encoder까지 다 쓴거
+@app.post("/predict_str_3")
+async def predict(request: Request, input_data: InputData):
+    # 문자열 리스트를 파이썬 리스트로 변환
+    input_tensor = np.array(input_data.data, dtype=float)
+    prediction = model(input_tensor.reshape(-1, 50, 6))
+    # prediction = model(scaler.transform(input_tensor).reshape(-1, 50, 6))
+
+    # 각 행에서 가장 큰 값을 가지는 열의 인덱스를 찾음
+    max_index = np.argmax(prediction, axis=1)
+    # 예측한 클래스로 디코딩
+    predicted_classes = le.inverse_transform(max_index)
+    print(predicted_classes)
+
+    # 결과 반환
+    return {"prediction": predicted_classes.tolist()}
+
+
 @router.post("/train")
 async def create_csv(file: bytes = Form(...)):
     # 받은 파일을 DataFrame으로 변환합니다.

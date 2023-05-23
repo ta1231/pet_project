@@ -97,9 +97,10 @@ async def predict(request: Request, input_data: InputData):
     # 예측한 클래스로 디코딩
     predicted_classes = le.inverse_transform(max_index)
     print(predicted_classes)
+    prediction_probabilities = np.max(prediction, axis=1)
 
     # 결과 반환
-    return {"prediction": predicted_classes.tolist()}
+    return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 
 
 # API 엔드포인트 정의
@@ -115,10 +116,10 @@ async def predict(request: Request, input_data: InputData):
     max_index = np.argmax(prediction, axis=1)
     # 예측한 클래스로 디코딩
     predicted_classes = le.inverse_transform(max_index)
-    print(predicted_classes)
+    prediction_probabilities = np.max(prediction, axis=1)
 
     # 결과 반환
-    return {"prediction": predicted_classes.tolist()}
+    return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 
 
 @router.post("/train")

@@ -63,7 +63,7 @@ async def predict(input_file: bytes = File(...)):
     # 입력값을 모델에 적용하여 예측 결과를 반환하는 로직을 작성하세요.
     
     prediction = model(np.array(input_data).reshape(-1, 50, 6))
-    
+    print('1234')
     # 결과 반환
     return {"prediction": prediction.numpy().tolist()}
 

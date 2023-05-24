@@ -64,7 +64,6 @@ async def predict(input_file: bytes = File(...)):
     
     prediction = model(np.array(input_data).reshape(-1, 50, 6))
     print('1234')
-    print('hello world')
     # 결과 반환
     return {"prediction": prediction.numpy().tolist()}
 

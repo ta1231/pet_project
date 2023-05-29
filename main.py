@@ -31,14 +31,14 @@ app = FastAPI()
 router = APIRouter()
 
 # 모델 불러오기
-model = tf.keras.models.load_model('./models/traind_0514_2.h5')
+model = tf.keras.models.load_model('./models/model_0529_3.h5')
 
 # pickle 파일에서 LabelEncoder 객체 읽어들이기
 with open('./models/label_encoder.pkl', 'rb') as f:
     le = pickle.load(f)
 
 # pickle 파일에서 Scaler 객체 읽어들이기
-with open('./scaler/standardScaler_all.pkl', 'rb') as f:
+with open('./scaler/scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
 
@@ -114,7 +114,7 @@ async def predict(request: Request, input_data: InputData):
     # 문자열 리스트를 파이썬 리스트로 변환
     input_tensor = np.array(input_data.data, dtype=float)
     # scaler 적용했음
-    prediction = model(scaler.transform(input_tensor).reshape(-1, 50, 2))
+    prediction = model(scaler.transform(input_tensor).reshape(-1, 50, 6))
 
     # 각 행에서 가장 큰 값을 가지는 열의 인덱스를 찾음
     max_index = np.argmax(prediction, axis=1)

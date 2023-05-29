@@ -123,7 +123,6 @@ async def predict(request: Request, input_data: InputData):
     prediction_probabilities = np.max(prediction, axis=1)
     # 클래스와 확률 출력
     print(predicted_classes, prediction_probabilities)
-    print("1234")
     # 결과 반환
     return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 
@@ -202,72 +201,6 @@ async def create_upload_file(file: UploadFile = File(...)):
     json_data = df.to_json(orient="records")
     return json_data
 
-
-@app.post("/train2")
-async def create_upload_file2(file: UploadFile = File(...)):
-    # 받은 파일을 DataFrame으로 변환합니다.
-    db_data = pd.read_csv(file.file)
-    print(db_data)
-    db_data = db_data[db_data['Label']!='shaking']
-    cut = 50 #50Hz
-    fft_test_X, rms_test_X, test_y = fft_transformation(db_data, cut)
-    fft_test_X = np.array(fft_test_X)
-    rms_test_X = np.array(rms_test_X)   
-    test_y = np.array(test_y, dtype='object')
-
-    test_y = le.transform(test_y)
-    test_y = to_categorical(test_y, num_classes=8)
-
-    # 두부 데이터 나누기
-    db_train_X, db_test_X, db_train_y, db_test_y = train_test_split(fft_test_X, test_y, test_size=0.2,shuffle=True, stratify=test_y, random_state=42)
-    db_train_X, db_val_X, db_train_y, db_val_y = train_test_split(db_train_X, db_train_y, test_size=0.25,shuffle=True, stratify=db_train_y, random_state=42)
-
-    # 기존에 학습된 모델을 불러옵니다.
-    model_pre_trained = keras.models.load_model('./all_fft_0428.h5')
-
-    # 기존 모델의 마지막 레이어를 제거합니다.
-    new_output = model_pre_trained.layers[-1].output
-
-    # 새로운 레이어를 추가합니다.
-    new_output = keras.layers.Dense(8, activation='softmax')(new_output)
-
-    # 새로운 모델을 정의합니다.
-    new_model = keras.models.Model(inputs=model_pre_trained.input, outputs=new_output)
-
-    # 기존 모델의 가중치를 새로운 모델에 복사합니다.
-    for i in range(len(new_model.layers) - 1):
-        new_model.layers[i].set_weights(model_pre_trained.layers[i].get_weights())
-
-    # 새로운 모델을 컴파일합니다.
-    new_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-    reLR = ReduceLROnPlateau(patience = 4,verbose = 1,factor = 0.5) 
-    es =EarlyStopping(monitor='val_loss', patience=10, mode='min')
-
-    # 전이학습이기 때문에 warm up, learning rate 처음부터 크게가면 가중치 망가짐
-
-    # Warmup settings
-    warmup_epochs = 5
-    warmup_rate = 0.01
-    base_rate = 0.001
-
-    # Define optimizer with warmup
-    optimizer = Adam(lr=warmup_rate, decay=0.0)
-    new_model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-
-    # Train the model with warmup
-    new_model.fit(db_train_X, db_train_y, epochs=warmup_epochs, validation_data=(db_val_X, db_val_y), verbose=1, batch_size=64)
-    # plot_history(history_warmup)
-
-    # Change the learning rate and train the model
-    new_model.fit(db_train_X, db_train_y, epochs = 100, validation_data= (db_val_X, db_val_y), 
-                        verbose=1,batch_size=64,callbacks=[reLR])
-    new_model.save('0523.h5')
-    # # 변환된 DataFrame을 응답으로 반환합니다.
-    return {'result':'good'}
-
-
-
 # 데이터를 window size = 50 단위로 분할하는 함수
 def fft_transformation(data, cut):
     sensor_columns=['GyroscopeX', 'GyroscopeY', 'GyroscopeZ', 'AccelerometerX', 'AccelerometerY', 'AccelerometerZ']
@@ -286,8 +219,8 @@ def fft_transformation(data, cut):
             stack += 1
             if stack == cut:
 
-                X_data = data.iloc[i+2-cut:i+2,1:col_len+1]
-                y_data = data.iloc[i+2-cut,col_len+1]
+                X_data = data.iloc[i+2-cut:i+2,:col_len]
+                y_data = data.iloc[i+2-cut,col_len]
 
                 #fft 수행
                 fft_X_data = np.fft.fft(X_data[sensor_columns])

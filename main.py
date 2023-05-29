@@ -126,7 +126,7 @@ async def predict(request: Request, input_data: InputData):
     # 결과 반환
     return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 
-
+'''
 @router.post("/train")
 async def create_csv(file: bytes = Form(...)):
     # 받은 파일을 DataFrame으로 변환합니다.
@@ -240,3 +240,4 @@ def fft_transformation(data, cut):
     
     
     return fft_X, rms_X, y
+'''

@@ -123,7 +123,7 @@ async def predict(request: Request, input_data: InputData):
     prediction_probabilities = np.max(prediction, axis=1)
     # 클래스와 확률 출력
     print(predicted_classes, prediction_probabilities)
-
+    print("1234")
     # 결과 반환
     return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 

@@ -249,7 +249,7 @@ async def create_upload_file2(file: UploadFile = File(...)):
     db_train_X, db_val_X, db_train_y, db_val_y = train_test_split(db_train_X, db_train_y, test_size=0.25,shuffle=True, stratify=db_train_y, random_state=42)
 
     # 기존에 학습된 모델을 불러옵니다.
-    model_pre_trained = keras.models.load_model('./all_fft_0428.h5')
+    model_pre_trained = keras.models.load_model('./all_fft.h5')
 
     # 기존 모델의 마지막 레이어를 제거합니다.
     new_output = model_pre_trained.layers[-1].output

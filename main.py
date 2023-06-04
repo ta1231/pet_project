@@ -31,14 +31,15 @@ app = FastAPI()
 router = APIRouter()
 
 # 모델 불러오기
-model = tf.keras.models.load_model('./models/dbtrained_0604_1.h5')
+# model = tf.keras.models.load_model('./models/dbtrained_0604_1.h5')
+model = tf.keras.models.load_model('./models/0427_model_withoutsiru.h5')
 
 # pickle 파일에서 LabelEncoder 객체 읽어들이기
 with open('./models/label_encoder.pkl', 'rb') as f:
     le = pickle.load(f)
 
 # pickle 파일에서 Scaler 객체 읽어들이기
-with open('./scaler/scaler.pkl', 'rb') as f:
+with open('./scaler/db_minmax.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
 
@@ -107,19 +108,38 @@ async def predict(request: Request, input_data: InputData):
     return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 
 
+# # API 엔드포인트 정의
+# # scaler랑 label encoder까지 다 쓴거
+# @app.post("/predict_str_3")
+# async def predict(request: Request, input_data: InputData):
+#     # 문자열 리스트를 파이썬 리스트로 변환
+#     input_tensor = np.array(input_data.data, dtype=float)
+#     input_tensor = input_tensor/32767
+#     m = np.mean(input_tensor, axis=0)
+#     s = np.std(input_tensor, axis=0)
+#     # input_tensor = input_tensor.mask(abs(input_tensor-m) > 3 * s, m, axis=1)
+#     input_tensor = np.ma.masked_array(input_tensor, mask=(abs(input_tensor - m) > 3 * s))
+#     input_tensor -= np.mean(input_tensor, axis=0)
+#     prediction = model(input_tensor.reshape(-1, 50, 6))
+
+#     # 각 행에서 가장 큰 값을 가지는 열의 인덱스를 찾음
+#     max_index = np.argmax(prediction, axis=1)
+#     # 예측한 클래스로 디코딩
+#     predicted_classes = le.inverse_transform(max_index)
+#     prediction_probabilities = np.max(prediction, axis=1)
+#     # 클래스와 확률 출력
+#     print(predicted_classes, prediction_probabilities)
+#     # 결과 반환
+#     return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
+
 # API 엔드포인트 정의
 # scaler랑 label encoder까지 다 쓴거
 @app.post("/predict_str_3")
 async def predict(request: Request, input_data: InputData):
     # 문자열 리스트를 파이썬 리스트로 변환
     input_tensor = np.array(input_data.data, dtype=float)
-    input_tensor = input_tensor/32767
-    m = np.mean(input_tensor, axis=0)
-    s = np.std(input_tensor, axis=0)
-    # input_tensor = input_tensor.mask(abs(input_tensor-m) > 3 * s, m, axis=1)
-    input_tensor = np.ma.masked_array(input_tensor, mask=(abs(input_tensor - m) > 3 * s))
-    input_tensor -= np.mean(input_tensor, axis=0)
-    prediction = model(input_tensor.reshape(-1, 50, 6))
+    # scaler 적용했음
+    prediction = model(scaler.transform(input_tensor).reshape(-1, 50, 6))
 
     # 각 행에서 가장 큰 값을 가지는 열의 인덱스를 찾음
     max_index = np.argmax(prediction, axis=1)
@@ -128,6 +148,7 @@ async def predict(request: Request, input_data: InputData):
     prediction_probabilities = np.max(prediction, axis=1)
     # 클래스와 확률 출력
     print(predicted_classes, prediction_probabilities)
+
     # 결과 반환
     return {"prediction": predicted_classes.tolist(), "probabilities": prediction_probabilities.tolist()}
 

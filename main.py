@@ -255,7 +255,7 @@ async def create_upload_file2(file: UploadFile = File(...)):
     new_output = model_pre_trained.layers[-1].output
 
     # 새로운 레이어를 추가합니다.
-    new_output = keras.layers.Dense(8, activation='softmax')(new_output)
+    new_output = keras.layers.Dense(8, activation='softmax', name='dense_new')(new_output)
 
     # 새로운 모델을 정의합니다.
     new_model = keras.models.Model(inputs=model_pre_trained.input, outputs=new_output)

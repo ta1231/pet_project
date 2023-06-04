@@ -229,7 +229,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     json_data = df.to_json(orient="records")
     return json_data
 
-@app.post("/train2")
+@app.post("/train")
 async def create_upload_file2(file: UploadFile = File(...)):
     # 받은 파일을 DataFrame으로 변환합니다.
     db_data = pd.read_csv(file.file)

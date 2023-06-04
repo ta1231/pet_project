@@ -139,8 +139,10 @@ async def predict(request: Request, input_data: InputData):
     # 문자열 리스트를 파이썬 리스트로 변환
     input_tensor = np.array(input_data.data, dtype=float)
     # scaler 적용했음
-    prediction = model(scaler.transform(input_tensor).reshape(-1, 50, 6))
+    
+    # prediction = model(scaler.transform(input_tensor).reshape(-1, 50, 6))
 
+    prediction = model(input_tensor.reshape(-1, 50, 6))
     # 각 행에서 가장 큰 값을 가지는 열의 인덱스를 찾음
     max_index = np.argmax(prediction, axis=1)
     # 예측한 클래스로 디코딩

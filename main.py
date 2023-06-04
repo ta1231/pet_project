@@ -116,7 +116,8 @@ async def predict(request: Request, input_data: InputData):
     input_tensor = input_tensor/32767
     m = np.mean(input_tensor, axis=0)
     s = np.std(input_tensor, axis=0)
-    input_tensor = input_tensor.mask(abs(input_tensor-m) > 3 * s, m, axis=1)
+    # input_tensor = input_tensor.mask(abs(input_tensor-m) > 3 * s, m, axis=1)
+    input_tensor = np.ma.masked_array(input_tensor, mask=(abs(input_tensor - m) > 3 * s))
     input_tensor -= np.mean(input_tensor, axis=0)
     prediction = model(input_tensor.reshape(-1, 50, 6))
 

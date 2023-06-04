@@ -272,18 +272,18 @@ async def create_upload_file2(file: UploadFile = File(...)):
 
     # 전이학습이기 때문에 warm up, learning rate 처음부터 크게가면 가중치 망가짐
 
-    # Warmup settings
-    warmup_epochs = 5
-    warmup_rate = 0.01
-    base_rate = 0.001
+    # # Warmup settings
+    # warmup_epochs = 5
+    # warmup_rate = 0.01
+    # base_rate = 0.001
 
-    # Define optimizer with warmup
-    optimizer = Adam(lr=warmup_rate, decay=0.0)
-    new_model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    # # Define optimizer with warmup
+    # optimizer = Adam(lr=warmup_rate, decay=0.0)
+    # new_model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
-    # Train the model with warmup
-    new_model.fit(db_train_X, db_train_y, epochs=warmup_epochs, validation_data=(db_val_X, db_val_y), verbose=1, batch_size=64)
-    # plot_history(history_warmup)
+    # # Train the model with warmup
+    # new_model.fit(db_train_X, db_train_y, epochs=warmup_epochs, validation_data=(db_val_X, db_val_y), verbose=1, batch_size=64)
+    # # plot_history(history_warmup)
 
     # Change the learning rate and train the model
     new_model.fit(db_train_X, db_train_y, epochs = 100, validation_data= (db_val_X, db_val_y), 
